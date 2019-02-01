@@ -1,0 +1,57 @@
+#!/bin/bash
+
+INSTANCE="$VSTSPERSO"
+PROJECTNAME="PreliminaryPudding"
+PROJECTTYPE="VisualStudio"
+REPONAME="${PWD##*/}"
+
+usage() {
+    echo "Usage: `basename "$0"` [--name name] [--project project-name] [--instance instance] [--type type]"
+    exit 1
+}
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    shift
+
+    case $key in
+        -p|--project)
+            PROJECTNAME="$1"
+            shift
+        ;;
+        -i|--instance)
+            INSTANCE="$1"
+            shift
+        ;;
+        -t|--type)
+            PROJECTTYPE="$1"
+            shift
+        ;;
+        -n|--name)
+            REPONAME="$1"
+            shift
+        ;;
+        *)
+            echo "Unknown parameter: $key"
+            usage
+        ;;
+    esac
+done
+
+if [ -z "$REPONAME" ]; then
+    echo "Missing repository name"
+    usage
+fi
+
+echo -e "Creating Azure Devops repo \n Instance: $INSTANCE \n Project: $PROJECTNAME \n Repository name: $REPONAME"
+SSHURL=`vsts code repo create --instance "$INSTANCE" --project "$PROJECTNAME" --name "$REPONAME" --query "additionalProperties.sshUrl"`
+if [ $? != 0 ]; then
+    echo "Devops repo creation failed, aborting."
+    exit
+fi
+echo "Initializing git"
+git init
+git remote add origin $SSHURL
+echo "Downloading gitignore for $PROJECTTYPE"
+curl -s -o .gitignore https://raw.githubusercontent.com/github/gitignore/master/$PROJECTTYPE.gitignore > /dev/null

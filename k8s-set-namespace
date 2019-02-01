@@ -1,0 +1,6 @@
+#!/bin/bash
+
+NAMESPACE=$1
+CONTEXT=`kubectl config current-context`
+echo "Set namespace of context $CONTEXT to $NAMESPACE"
+kubectl config set-context $CONTEXT --namespace $NAMESPACE

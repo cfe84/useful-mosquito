@@ -1,0 +1,15 @@
+#!/bin/bash
+
+ACCOUNTS=`az account list -o tsv --query "[].name"`
+
+I=1
+IFS=$'\n'
+for ACCOUNT in $ACCOUNTS; do
+    echo "$I - $ACCOUNT"
+    ((I++))
+done;
+
+read -p "> " ACCOUNTID
+ACCOUNT=`echo "$ACCOUNTS" | sed "${ACCOUNTID}q;d"`
+echo "Set account to $ACCOUNT"
+az account set -s "$ACCOUNT"

@@ -1,0 +1,71 @@
+#!/bin/bash
+
+FROMINSTANCE="$VSTSPRO"
+TOINSTANCE="$VSTSPERSO"
+FROMPROJECT="PreliminaryPudding"
+TOPROJECT="PreliminaryPudding"
+
+usage() {
+    echo "Usage: `basename "$0"` [--from instanceURL --to instanceURL | --instance instanceUrl] [--from-project project-name --to-project project-name | --project project-name]"
+    exit 1
+}
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    shift
+
+    case $key in
+        -p|--project)
+            FROMPROJECT="$1"
+            TOPROJECT="$1"
+            shift
+        ;;
+        -fp|--from-project)
+            FROMPROJECT="$1"
+            shift
+        ;;
+        -tp|--to-project)
+            TOPROJECT="$1"
+            shift
+        ;;
+        -i|--instance)
+            FROMINSTANCE="$1"
+            TOINSTANCE="$1"
+            shift
+        ;;
+        -f|--from)
+            FROMINSTANCE="$1"
+            shift
+        ;;
+        -t|--to)
+            TOINSTANCE="$1"
+            shift
+        ;;
+        *)
+            echo "Unknown parameter: $key"
+            usage
+        ;;
+    esac
+done
+
+OLD_IFS="$IFS"
+IFS=$'\t'
+PROJECTS="`vsts code repo list --instance $FROMINSTANCE --project $FROMPROJECT --query "[].{name: name, ssh: additionalProperties.sshUrl}" -o tsv`"
+ROOTDIR="`pwd`"
+echo "$PROJECTS" | 
+    while read NAME SSHURL; do
+        if [ ! -d $NAME ]; then
+            echo "========$NAME========="
+            git clone "$SSHURL"
+            NEWURL=`vsts code repo create --instance $TOINSTANCE --project $TOPROJECT --name $NAME --query "additionalProperties.sshUrl" -o tsv`
+            cd $NAME
+            git remote remove origin
+            git remote add origin $NEWURL
+            git push origin master # Would be good to push all branches
+            cd $ROOTDIR
+        else
+            echo "===$NAME already exists, skipping==="
+        fi
+    done
+IFS="$OLD_IFS"

@@ -4,6 +4,8 @@ INSTANCE="$VSTSPERSO"
 PROJECTNAME="PreliminaryPudding"
 PROJECTTYPE="VisualStudio"
 REPONAME="${PWD##*/}"
+REMOTE="origin"
+INIT=1
 
 usage() {
     echo "Usage: `basename "$0"` [--name name] [--project project-name] [--instance instance] [--type type]"
@@ -32,6 +34,13 @@ do
             REPONAME="$1"
             shift
         ;;
+        -r|--remote)
+            REMOTE="$1"
+            shift
+        ;;
+        --no-init)
+            INIT=0
+        ;;
         *)
             echo "Unknown parameter: $key"
             usage
@@ -51,7 +60,10 @@ if [ $? != 0 ]; then
     exit
 fi
 echo "Initializing git"
-git init
-git remote add origin $SSHURL
+
+if [ $INIT = 1 ]; then
+    git init
+    curl -s -o .gitignore https://raw.githubusercontent.com/github/gitignore/master/$PROJECTTYPE.gitignore > /dev/null
+fi
+git remote add $REMOTE $SSHURL
 echo "Downloading gitignore for $PROJECTTYPE"
-curl -s -o .gitignore https://raw.githubusercontent.com/github/gitignore/master/$PROJECTTYPE.gitignore > /dev/null

@@ -9,7 +9,7 @@ HOST="devops"
 INIT=1
 
 usage() {
-    echo "Usage: `basename "$0"` [--host github|devops] [--name name] [--project project-name] [--instance instance] [--type type]"
+    echo "Usage: `basename "$0"` [--host github|devops] [--name name] [--project project-name] [--instance instance] [--type type] [--no-init]"
     exit 1
 }
 
@@ -76,9 +76,8 @@ if [ $HOST = "github" ]; then
     fi
 fi
 
-echo "Initializing git"
-
 if [ $INIT = 1 ]; then
+    echo "Initializing git"
     git init
     curl -s -o .gitignore https://raw.githubusercontent.com/github/gitignore/master/$PROJECTTYPE.gitignore > /dev/null
 fi

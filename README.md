@@ -1,5 +1,11 @@
 This repository contains utils and scripts I created to help automating repetitive tasks.
 
+Install the az cli and Devops extension like so:
+
+```sh
+az extension add --name azure-devops
+```
+
 All need to be ran either in Linux or in the WSL.
 
 - `git-init-repo` is a shell script that initializes git repositories with Azure Devops or GitHub. It requires the [VSTS CLI]() and the GitHub CLI I built (`npm install @cfe84/github-cli`)  to work.

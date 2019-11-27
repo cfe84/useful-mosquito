@@ -1,0 +1,100 @@
+#! /bin/bash
+
+SHOW_ALL=true
+FETCH=false
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    shift
+
+    case $key in
+        -w|--warnings)
+            SHOW_ALL=false
+        ;;
+
+        -f|--fetch)
+            FETCH=true
+        ;;
+
+        *)
+            echo "Unknown parameter: $key"
+            usage
+        ;;
+    esac
+done
+
+function countModified() {
+    git status -s | grep "^[ ]*M" | wc -l
+}
+
+function countNew() {
+    git status -s | grep "^[ ]*\?\?" | wc -l
+}
+
+function countRemotes() {
+    git remote | wc -l
+}
+
+function countUnpushed() {
+    REMOTES=`git remote`
+    COUNT=0
+    COUNT=`git log origin/master..master --pretty="format:%H" | wc -w`
+    # for REMOTE in "$REMOTES"; do
+    #     REMOTE_COUNT=`git log $REMOTE/master..master --pretty="format:%H" | wc -w`
+    #     let COUNT="$COUNT + $REMOTE_COUNT"
+    # done
+    echo $COUNT
+}
+
+function printWarnings() {
+    WARNINGS=$1
+    echo -n "WARNING: "
+    for WARNING in "${WARNINGS[@]}"; do
+        echo -n "$WARNING, "
+    done
+}
+
+function checkFolder() {
+    DIR="$1"
+    CWD=`pwd`
+    cd $DIR
+    declare -a WARNINGS
+    if [ ! -d '.git' ]; then
+        WARNINGS+=( "No git repo" )
+    else
+        MODIFIED=`countModified`
+        if [ $MODIFIED -ne 0 ]; then
+            WARNINGS+=( "$MODIFIED modified file(s)" )
+        fi
+        NEW=`countNew`
+        if [ $NEW -ne 0 ]; then
+            WARNINGS+=( "$NEW new file(s)" )
+        fi
+        if [ `countRemotes` -eq 0 ]; then
+            WARNINGS+=( "no remotes" )
+        else
+            if $FETCH; then
+                git fetch --all > /dev/null
+            fi
+            UNPUSHED_COMMITS=`countUnpushed`
+            if [ $UNPUSHED_COMMITS -ne 0 ]; then
+                WARNINGS+=( "$UNPUSHED_COMMITS unpushed commits" )
+            fi
+        fi
+    fi
+    if $SHOW_ALL || [ ${#WARNINGS[@]} -ne 0 ]; then
+        echo -n "> $DIR "
+    fi
+    if [ ${#WARNINGS[@]} -ne 0 ]; then
+        printWarnings "${WARNINGS[@]}"
+    fi
+    if $SHOW_ALL || [ ${#WARNINGS[@]} -ne 0 ]; then
+        echo
+    fi
+    cd $CWD
+}
+
+for DIR in `ls`; do
+    checkFolder $DIR
+done

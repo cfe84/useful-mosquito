@@ -1,0 +1,50 @@
+#!/bin/bash
+
+
+usage() {
+    echo "Usage: `basename "$0"` FOLDER"
+    exit 1
+}
+
+function isCommand() {
+    POTENTIAL_COMMAND="$1"
+    if [ ! -z "`echo $POTENTIAL_COMMAND | grep -E "^(-\w|--\w+)$"`" ]; then
+        echo "true"
+    else
+        echo "false"
+    fi
+}
+
+FOLDER=""
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    shift
+
+    case $key in
+        --help|-h)
+            usage
+        ;;
+        *)
+            if [ -z "$FOLDER" ] && [ `isCommand $key` = "false" ]; then
+                FOLDER="$key"
+            else
+                echo "Unknown parameter: $key"
+                usage
+            fi
+        ;;
+    esac
+done
+
+if [ -z "$FOLDER" ]; then
+    FOLDER="."
+fi
+
+COLUMNS=("todo" "doing" "done")
+FILES=`ls $FOLDER/*.md`
+
+for FILE in $FILES; do
+    STATUS=`cat $FILE | sed -nE 's/Status\:\s*(\w+)/\1/gi'`
+    echo "$FILE: $STATUS"
+done

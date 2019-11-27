@@ -12,3 +12,4 @@ All need to be ran either in Linux or in the WSL.
 - `az-set-account` allows you to select the subscription the Azure CLI is pointing to.
 - `migrate-vsts` and `vsts-clone-all-repositories.sh` allow you to handle all repos of a single Azure Devops project at once.
 - `k8s-*` are tools to set context and namespace you are using.
+- `git-check-subfolders` check all subfolders for git repos that have not been updated

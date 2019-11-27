@@ -60,7 +60,7 @@ fi
 
 if [ $HOST = "devops" ]; then
     echo -e "Creating Azure Devops repo \n Instance: $INSTANCE \n Project: $PROJECTNAME \n Repository name: $REPONAME"
-    SSHURL=`az repos create --organization "$INSTANCE" --project "$PROJECTNAME" --name "$REPONAME" --query "additionalProperties.sshUrl" | sed 's/"//g'`
+    SSHURL=`vsts code repo create --instance "$INSTANCE" --project "$PROJECTNAME" --name "$REPONAME" --query "additionalProperties.sshUrl" | sed 's/"//g'`
     if [ $? != 0 ]; then
         echo "Devops repo creation failed, aborting."
         exit

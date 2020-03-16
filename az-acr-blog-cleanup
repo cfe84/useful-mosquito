@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# WARNING! This script deletes data!
+# Run only if you do not have systems
+# that pull images via manifest digest.
+
+# Change to 'true' to enable image delete
+ENABLE_DELETE=false
+
+# Modify for your environment
+# TIMESTAMP can be a date-time string such as 2019-03-15T17:55:00.
+REGISTRY=charles
+REPOSITORY=blog
+TIMESTAMP=`date '+%Y-%m-%d' --date "last month"`
+
+usage() {
+    echo "Usage: `basename "$0"` [--from-date 2020-01-01] [--delete]"
+    exit 1
+}
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    shift
+
+    case $key in
+        -f|--from-date)
+            TIMESTAMP=$1
+            shift
+        ;;
+
+        -d|--delete)
+            ENABLE_DELETE=true
+        ;;
+
+        *)
+            echo "Unknown parameter: $key"
+            echo
+        ;;
+    esac
+done
+
+# Delete all images older than specified timestamp.
+
+if [ "$ENABLE_DELETE" = true ]
+then
+    echo "Deleting images since $TIMESTAMP."
+    az acr repository show-manifests --name $REGISTRY --repository $REPOSITORY \
+    --orderby time_asc --query "[?timestamp < '$TIMESTAMP'].digest" -o tsv \
+    | xargs -I% az acr repository delete --name $REGISTRY --image $REPOSITORY@% --yes
+else
+    echo "Retrieving images since $TIMESTAMP."
+    echo "Call with --delete  to enable deletion of these images in $REPOSITORY:"
+    az acr repository show-manifests --name $REGISTRY --repository $REPOSITORY \
+   --orderby time_asc --query "[?timestamp < '$TIMESTAMP'].[digest, timestamp]" -o tsv
+fi

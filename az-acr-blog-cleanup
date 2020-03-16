@@ -14,7 +14,7 @@ REPOSITORY=blog
 TIMESTAMP=`date '+%Y-%m-%d' --date "last month"`
 
 usage() {
-    echo "Usage: `basename "$0"` [--from-date 2020-01-01] [--delete]"
+    echo "Usage: `basename "$0"` [--from-date 2020-01-01] [--repository blog] [--delete]"
     exit 1
 }
 
@@ -26,6 +26,11 @@ do
     case $key in
         -f|--from-date)
             TIMESTAMP=$1
+            shift
+        ;;
+
+        -r|--repository)
+            REPOSITORY=$1
             shift
         ;;
 

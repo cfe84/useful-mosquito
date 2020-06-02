@@ -23,10 +23,14 @@ if [ ! -d "$CONTEXT/$FOLDER_CURRENTPROJECT" ]; then
   exit -1
 fi
 
-if [ "$COMMAND" = "list" ]; then
-  source $INCLUDE/pp-command-list.sh
-fi
-
-if [ "$COMMAND" = "create" ]; then
-  source $INCLUDE/pp-command-create.sh
-fi
+case $COMMAND in
+  open)
+    source $INCLUDE/pp-command-open.sh
+  ;;
+  list)
+    source $INCLUDE/pp-command-list.sh
+  ;;
+  create)
+    source $INCLUDE/pp-command-create.sh
+  ;;
+esac

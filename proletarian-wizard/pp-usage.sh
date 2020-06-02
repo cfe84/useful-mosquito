@@ -14,5 +14,5 @@ usage_create() {
 }
 
 usage_open() {
-  echo "$PWP_USAGE open [--project|-p PROJECT_NAME] [--with|-w COMMAND]"
+  echo "$PWP_USAGE open [--project|-p PROJECT_NAME] [--id|-i PROJECT_ID] [--with|-w COMMAND]"
 }

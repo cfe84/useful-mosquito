@@ -7,3 +7,5 @@ FOLDER_REFERENCE="30 - Reference"
 FOLDER_ARCHIVED="40 - Archived"
 
 COMMAND=""
+
+PW_USAGE="Usage: `basename "$0"`"

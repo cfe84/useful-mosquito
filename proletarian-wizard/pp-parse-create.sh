@@ -11,7 +11,7 @@ do
             shift
         ;;
 
-        --name|-n)
+        --project|-p)
             PROJECT_NAME="$1"
             shift
         ;;

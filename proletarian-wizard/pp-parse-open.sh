@@ -6,13 +6,17 @@ do
     shift
 
     case $key in
-        --name|-n)
+        --project|-p)
             PROJECT_NAME="$1"
+            shift
+        ;;
+        --with|-w)
+            EDITOR="$1"
             shift
         ;;
         *)
             echo "Unknown parameter: $key"
-            usage_create
+            usage_open
             exit
         ;;
     esac

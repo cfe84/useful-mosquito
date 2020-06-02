@@ -23,6 +23,10 @@ do
             COMMAND="archive"
             break
         ;;
+        open|o)
+            COMMAND="open"
+            break
+        ;;
         *)
             echo "Unknown parameter: $key"
             usage_base

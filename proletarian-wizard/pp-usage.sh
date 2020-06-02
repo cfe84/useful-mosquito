@@ -1,12 +1,18 @@
 #!/bin/bash
 
+PWP_USAGE="$PW_USAGE [--context|-c CONTEXT_PATH]"
+
 usage_base() {
-    echo "Usage: `basename "$0"` [--context/-c] [list | open | create | archive]"
+    echo "$PWP_USAGE [list | open | create | archive]"
     exit 1
 }
 
 usage_create() {
   DATE=$(date '+%Y-%m-%d')
-  echo "Usage: `basename "$0"` [--context/-c] create --date $DATE --name PROJECT_NAME"
+  echo "$PWP_USAGE create --date $DATE --project|-p PROJECT_NAME"
   exit 1
+}
+
+usage_open() {
+  echo "$PWP_USAGE open [--project|-p PROJECT_NAME] [--with|-w COMMAND]"
 }

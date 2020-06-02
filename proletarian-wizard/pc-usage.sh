@@ -1,12 +1,13 @@
 #!/bin/bash
 
+PWC_USAGE="$PW_USAGE"
 
 usage_base() {
-  echo "Usage: `basename "$0"` [init|i]"
+  echo "$PWC_USAGE [init|i]"
   exit 1
 }
 
 usage_init() {
-  echo "Usage: `basename "$0"` init/i --path/-p PATH [--create/-c]"
+  echo "$PWC_USAGE init/i --path/-p PATH [--create/-c]"
   exit 1
 }

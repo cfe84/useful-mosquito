@@ -1,0 +1,24 @@
+#!/bin/bash
+
+####
+# Proletarian wizard
+####
+
+SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+INCLUDE="$SCRIPTPATH/proletarian-wizard"
+
+source "$INCLUDE/common-variables.sh"
+source "$INCLUDE/pc-usage.sh"
+source "$INCLUDE/pc-parse-command-line.sh"
+
+if [ -z "$COMMAND" ]; then
+  echo "Error: no command specified."
+  usage_base
+  exit -1
+fi
+
+
+if [ "$COMMAND" = "init" ]; then
+  source "$INCLUDE/pc-command-init.sh"
+  exit 0
+fi

@@ -8,16 +8,7 @@ source "$INCLUDE/common-editors.sh"
 source "$INCLUDE/pp-parse-open.sh"
 
 if [ ! -z "$PROJECT_ID" ]; then
-  INDEX=1
-  IFS=$'\n' PROJECTS="`ls "$CONTEXT/$FOLDER_CURRENTPROJECTS"`"
-  for PROJECT in $PROJECTS; do
-    if [ $INDEX -eq $PROJECT_ID ]; then
-      PROJECT_NAME="$PROJECT"
-      echo "Opening project $PROJECT_ID: $PROJECT"
-      break
-    fi
-    INDEX=$((INDEX + 1))
-  done
+  source "$INCLUDE/common-find-project-name-from-id.sh"
 fi
 
 if [ -z "$PROJECT_NAME" ]; then # Use default current projects

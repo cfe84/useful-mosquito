@@ -3,6 +3,7 @@
 PWP_USAGE="$PW_USAGE [--context|-c CONTEXT_PATH]"
 
 usage_base() {
+  echo "Proletarian Wizard Projects"
     echo "$PWP_USAGE [list | open | create | archive]"
     exit 1
 }

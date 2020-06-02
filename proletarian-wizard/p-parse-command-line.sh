@@ -27,6 +27,10 @@ do
             COMMAND="open"
             break
         ;;
+        show|s)
+            COMMAND="show"
+            break
+        ;;
         *)
             echo "Unknown parameter: $key"
             usage_base

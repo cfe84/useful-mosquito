@@ -5,7 +5,7 @@ PROJECT_ID=
 EDITOR=
 
 source "$INCLUDE/common-editors.sh"
-source "$INCLUDE/pp-parse-open.sh"
+source "$INCLUDE/p-parse-open.sh"
 
 if [ ! -z "$PROJECT_ID" ]; then
   source "$INCLUDE/common-find-project-name-from-id.sh"
@@ -23,8 +23,8 @@ if [ ! -e "$PROJECT_PATH" ]; then # path does not exist
   exit -1
 fi
 
-if [ -z "$EDITOR" ]; then
-  if [ -d "$PROJECT_NAME" ]; then
+if [ -z "$EDITOR" ]; then # editor not specified
+  if [ -d "$PROJECT_NAME" ]; then # determine if use file or folder editor
     EDITOR="$FOLDER_EDITOR"
   else
     EDITOR="$FILE_EDITOR"

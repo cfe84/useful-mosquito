@@ -8,8 +8,8 @@ SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 INCLUDE="$SCRIPTPATH/proletarian-wizard"
 
 source "$INCLUDE/common-variables.sh"
-source "$INCLUDE/pp-usage.sh"
-source "$INCLUDE/pp-parse-command-line.sh"
+source "$INCLUDE/p-usage.sh"
+source "$INCLUDE/p-parse-command-line.sh"
 
 if [ -z "$COMMAND" ]; then
   echo "Error: no command specified."
@@ -25,12 +25,15 @@ fi
 
 case $COMMAND in
   open)
-    source $INCLUDE/pp-command-open.sh
+    source $INCLUDE/p-command-open.sh
   ;;
   list)
-    source $INCLUDE/pp-command-list.sh
+    source $INCLUDE/p-command-list.sh
   ;;
   create)
-    source $INCLUDE/pp-command-create.sh
+    source $INCLUDE/p-command-create.sh
+  ;;
+  show)
+    source $INCLUDE/p-command-show.sh
   ;;
 esac

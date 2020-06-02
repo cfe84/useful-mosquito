@@ -3,7 +3,7 @@
 PROJECT_DATE=$(date '+%Y-%m-%d')
 PROJECT_NAME=
 
-source "$INCLUDE/pp-parse-create.sh"
+source "$INCLUDE/p-parse-create.sh"
 
 if [ -z "$PROJECT_NAME" ]; then
   echo "Error: missing project name"

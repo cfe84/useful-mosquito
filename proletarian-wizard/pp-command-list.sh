@@ -1,4 +1,4 @@
 #!/bin/bash
 
-ls -1 --color=auto "$CONTEXT/$FOLDER_CURRENTPROJECTS"
+ls -1 -G "$CONTEXT/$FOLDER_CURRENTPROJECTS"
 exit 0

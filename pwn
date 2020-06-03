@@ -18,7 +18,7 @@ if [ -z "$COMMAND" ]; then
 fi
 
 case $COMMAND in
-  create)
+  open)
     source $INCLUDE/n-command-open.sh
   ;;
   list)

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+IFS=$'\n'
+HERE=`pwd`
+for DIR in `ls -d */`; do
+  read -p "$DIR? [y]/n> " GO
+  if [ -z "$GO" ] || [ "$GO" = "y" ]  || [ "$GO" = "yes" ]; then 
+    cd "$HERE/$DIR"
+    $@
+    cd "$HERE"
+  fi
+done

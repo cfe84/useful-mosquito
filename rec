@@ -1,0 +1,9 @@
+#!/bin/bash
+
+IFS=$'\n'
+HERE=`pwd`
+for DIR in `ls -d */`; do
+  cd "$HERE/$DIR"
+  $@
+  cd "$HERE"
+done

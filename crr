@@ -1,0 +1,25 @@
+#!/bin/bash
+
+KEY=$1
+
+if [ ! -f ".crr/$KEY" ]; then
+  echo "Couldn't find .crr/$KEY"
+  exit 1
+fi
+
+read CR PROJECTS <<< `cat .crr/$KEY`
+
+IFS=$',' 
+read -a PROJECT_LIST <<< "$PROJECTS"
+DIR=`pwd`
+for PROJECT in "${PROJECT_LIST[@]}"; do
+  cd $PROJECT
+  BRANCH=`git rev-parse --abbrev-ref HEAD`
+  if [ "$BRANCH" != "$KEY" ]; then
+    echo "Project $PROJECT is set to $BRANCH instead of $KEY. Aborting"
+    exit 2
+  fi
+  cd $DIR
+done
+IFS=$'\n'
+cr -r "$CR" -i "$PROJECTS" --parent origin/mainline

@@ -1,0 +1,9 @@
+#!/bin/bash
+# usage: watch <your_command>
+
+while :; 
+  do 
+  date
+  $@
+  sleep 2
+done

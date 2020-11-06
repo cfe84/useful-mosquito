@@ -1,5 +1,9 @@
 #!/bin/bash
 
+source ~/.bashrc
+set -e
+set -u
+shopt -s expand_aliases
 IFS=$'\n'
 HERE=`pwd`
 for DIR in `ls -d */`; do

@@ -1,0 +1,88 @@
+#!/bin/bash
+
+set -e -u
+
+MOCHA=false
+WEBPACK=false
+BIN=
+LOCAL_PATH=`dirname $0`
+RES=$LOCAL_PATH/ts-init-res
+JSON_UPDATE=$RES/update-json
+PACKAGE_FILE=`pwd`/package.json
+
+usage() {
+    echo "Usage: `basename "$0"` [--mocha | --webpack | --bin <BIN NAME> | --help]"
+    exit 1
+}
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    shift
+
+    case $key in
+        -h|--help)
+            usage
+        ;;
+        -m|--mocha)
+            MOCHA=true
+        ;;
+        -w|--webpack)
+            WEBPACK=true
+        ;;
+        -b|--bin)
+            BIN=$1
+            shift
+        ;;
+        *)
+            echo "Unknown parameter: $key"
+            usage
+        ;;
+    esac
+done
+
+echo "
+####
+Initialize Typescript
+####
+"
+cp $RES/tsconfig.json ./tsconfig.json
+npm install --save-dev @types/node typescript ts-loader ts-node
+
+node $JSON_UPDATE $PACKAGE_FILE main "dist/src/index.js"
+node $JSON_UPDATE $PACKAGE_FILE scripts.build "tsc"
+node $JSON_UPDATE $PACKAGE_FILE scripts.rebuild "npm run clean && npm run build"
+node $JSON_UPDATE $PACKAGE_FILE scripts.prepublish "npm run rebuild"
+mkdir -p src
+
+if $MOCHA ; then
+echo "
+####
+Initialize Mocha
+####
+"
+  mkdir -p test
+  npm install --save-dev mocha @types/mocha should @types/should testdouble
+  node $JSON_UPDATE $PACKAGE_FILE scripts.test "mocha --require ts-node/register ./test/**/*.ts"
+fi
+if $WEBPACK ; then
+echo "
+####
+Initialize Webpack
+####
+"
+  npm install --save-dev webpack webpack-cli
+  node $JSON_UPDATE $PACKAGE_FILE scripts.webpack "npx webpack"
+fi
+if [ ! -z "$BIN" ]; then
+echo "
+####
+Generate binary
+####
+"
+  mkdir -p bin/
+  cp $RES/bin bin/$BIN
+  node $JSON_UPDATE $PACKAGE_FILE "bin.$BIN" "./bin/$BIN"
+fi
+# Typings:
+# "typings": "./typings/types/yaclip.d.ts"

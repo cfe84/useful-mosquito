@@ -54,6 +54,7 @@ node $JSON_UPDATE $PACKAGE_FILE scripts.build "tsc"
 node $JSON_UPDATE $PACKAGE_FILE scripts.clean "rm -rf dist/"
 node $JSON_UPDATE $PACKAGE_FILE scripts.rebuild "npm run clean && npm run build"
 node $JSON_UPDATE $PACKAGE_FILE scripts.prepublish "npm run rebuild"
+node $JSON_UPDATE $PACKAGE_FILE scripts.start "npm run build && node dist/index.js"
 mkdir -p src
 if [ ! -f "src/index.ts" ]; then
   touch src/index.ts

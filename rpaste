@@ -4,8 +4,6 @@ set -u -e
 
 TO_CLIP=false
 
-echo $REMOTECLIPBOARDFILE
-
 usage() {
     echo "Usage: `basename "$0"` [--to-clip|-p]"
     echo "  --to-clip: paste to clipboard"
@@ -34,7 +32,7 @@ do
 done
 
 if $TO_CLIP; then
-  gpg --decrypt -q -r charles@feval.ca < "${REMOTECLIPBOARDFILE}" | pbcopy -pboard general
+  gpg --decrypt -q -r charles@feval.ca < "${REMOTECLIPBOARDFILE}" | clipboard
 else
   echo `gpg --decrypt -q -r charles@feval.ca < "${REMOTECLIPBOARDFILE}"`
 fi

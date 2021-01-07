@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -u -e
+
+TO_CLIP=false
+
+echo $REMOTECLIPBOARDFILE
+
+usage() {
+    echo "Usage: `basename "$0"` [--to-clip|-p]"
+    echo "  --to-clip: paste to clipboard"
+    exit 1
+}
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    shift
+
+    case $key in
+        -p|--to-clip)
+            TO_CLIP=true
+        ;;
+
+        --help|-h)
+            usage
+        ;;
+        *)
+            echo "Unknown parameter: $key"
+            echo
+            usage
+        ;;
+    esac
+done
+
+if $TO_CLIP; then
+  gpg --decrypt -q -r charles@feval.ca < "${REMOTECLIPBOARDFILE}" | pbcopy -pboard general
+else
+  echo `gpg --decrypt -q -r charles@feval.ca < "${REMOTECLIPBOARDFILE}"`
+fi

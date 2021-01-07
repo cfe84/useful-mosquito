@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -u -e
+
+pbpaste | gpg --encrypt -q -r charles@feval.ca > "${REMOTECLIPBOARDFILE}"

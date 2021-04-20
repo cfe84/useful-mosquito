@@ -1,0 +1,124 @@
+#!/bin/bash
+
+set -e -u
+
+LOCAL_PATH=`dirname $0`
+RES=$LOCAL_PATH/new-ws-res
+HOST=
+DOMAIN=
+SUBDOMAIN=
+REPO=
+FOLDER=
+RG=
+STATIC_WEBSITE=
+REGION=westus2
+
+usage() {
+    echo "Usage: `basename "$0"` [--host <HOST> | --folder <FOLDER> | --repo <REPO> | --resource-group <GROUP> | --help]"
+    exit 1
+}
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    shift
+
+    case $key in
+        -h|--help)
+            usage
+        ;;
+        -H|--host)
+            HOST=$1
+            shift
+        ;;
+        -r|--repo)
+            REPO=$1
+            shift
+        ;;
+        -g|--resource-group)
+            RG=$1
+            shift
+        ;;
+        -f|--folder)
+            FOLDER=$1
+            shift
+        ;;
+        *)
+            echo "Error: Unknown parameter: $key"
+            usage
+        ;;
+    esac
+done
+
+if [ -z "$HOST" ]; then
+  echo "Error: Please specify a host with --host"
+  usage
+fi
+
+DOMAIN=`echo $HOST | sed -E "s/[^.]+\.//"`
+SUBDOMAIN=`echo $HOST | sed -E "s/\..+//"`
+
+if [ -z "$FOLDER" ]; then
+  FOLDER="$HOST"
+fi
+
+if [ -z "$REPO" ]; then
+  REPO="$HOST"
+fi
+
+if [ -z "$RG" ]; then
+  RG="$HOST"
+fi
+
+if [ -z "$STATIC_WEBSITE" ]; then
+  STATIC_WEBSITE="$HOST"
+fi
+
+echo "## Look for DNS zone $DOMAIN"
+
+DNS_LIST=`az network dns zone list`
+DNS_ZONE=`echo $DNS_LIST | jq ".[] | select(.name == \"$DOMAIN\")"`
+DNS_ZONE_RG=`echo $DNS_ZONE | jq -r ".resourceGroup"`
+
+if [ -z "$DNS_ZONE_RG" ]; then
+  echo "Error: No DNS zone found for $DOMAIN"
+  usage
+fi
+
+echo "## Init git repo to $FOLDER and copy base"
+gh repo create $REPO --private --confirm
+cp -r $RES/base/.* $FOLDER/
+cd $FOLDER
+git checkout -b main
+# GITHUB_REPO_NAME=`gh repo view | grep "name:" | sed -E 's/name:\s+//'`
+# GITHUB_REPO_URL="https://github.com/$GITHUB_REPO_NAME"
+
+echo "## Create resource group $RG"
+
+az group create --name $RG -l $REGION --query "properties.provisioningState" -o tsv
+
+echo "## Create static website $STATIC_WEBSITE in resource group $RG"
+
+RES=`az staticwebapp create -g $RG -n $STATIC_WEBSITE -l $REGION -s "" -b "" -t "none"`
+
+STATIC_WEBSITE_ID=/subscriptions/3161bd70-b9ed-4bc1-916c-0af37f90975b/resourceGroups/prod-static-content/providers/Microsoft.Web/staticSites/prod-blog
+STATIC_WEBSITE_RG=prod-static-content
+STATIC_WEBSITE_HOST=`echo $RES | jq -r ".defaultHostname"`
+
+echo "## Create DNS record"
+az network dns record-set cname create -g $DNS_ZONE_RG -z $DOMAIN -n $SUBDOMAIN --query "provisioningState" -o "tsv"
+az network dns record-set cname set-record -g $DNS_ZONE_RG -z $DOMAIN -n $SUBDOMAIN -c "$STATIC_WEBSITE_HOST" --query "provisioningState" -o "tsv"
+echo "## Add hostname to static webapp"
+az staticwebapp hostname set --hostname $HOST --name $STATIC_WEBSITE
+
+# Push
+
+echo "
+####
+Push to repo
+####
+"
+
+git add -A
+git commit -m "Initial commit"
+git push origin main

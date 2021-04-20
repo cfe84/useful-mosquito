@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: '14.15.1'
       - run: npm install plaf
-      - run: ./node_modules/plaf/bin/plaf -i code -o rendered
+      - run: ./node_modules/plaf/bin/plaf -i code -o rendered --generate-search 
       - name: Upload
         uses: Azure/static-web-apps-deploy@v0.0.1-preview
         with:

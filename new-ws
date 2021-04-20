@@ -75,10 +75,10 @@ if [ -z "$STATIC_WEBSITE" ]; then
 fi
 
 echo "## Look for DNS zone $DOMAIN"
-
 DNS_LIST=`az network dns zone list`
 DNS_ZONE=`echo $DNS_LIST | jq ".[] | select(.name == \"$DOMAIN\")"`
 DNS_ZONE_RG=`echo $DNS_ZONE | jq -r ".resourceGroup"`
+SUBSCRIPTION_ID=`az account show --query "id" -o tsv`
 
 if [ -z "$DNS_ZONE_RG" ]; then
   echo "Error: No DNS zone found for $DOMAIN"
@@ -87,22 +87,20 @@ fi
 
 echo "## Init git repo to $FOLDER and copy base"
 gh repo create $REPO --private --confirm
-cp -r $RES/base/.* $FOLDER/
+cp -r $RES/base/.gitignore $FOLDER/
+cp -r $RES/base/.github $FOLDER/
+cp $RES/base/README.md $FOLDER/
 cd $FOLDER
 git checkout -b main
-# GITHUB_REPO_NAME=`gh repo view | grep "name:" | sed -E 's/name:\s+//'`
-# GITHUB_REPO_URL="https://github.com/$GITHUB_REPO_NAME"
+GITHUB_REPO_NAME=`gh repo view | grep "name:" | sed -E 's/name:\s+//'`
 
 echo "## Create resource group $RG"
-
 az group create --name $RG -l $REGION --query "properties.provisioningState" -o tsv
 
 echo "## Create static website $STATIC_WEBSITE in resource group $RG"
-
 RES=`az staticwebapp create -g $RG -n $STATIC_WEBSITE -l $REGION -s "" -b "" -t "none"`
 
-STATIC_WEBSITE_ID=/subscriptions/3161bd70-b9ed-4bc1-916c-0af37f90975b/resourceGroups/prod-static-content/providers/Microsoft.Web/staticSites/prod-blog
-STATIC_WEBSITE_RG=prod-static-content
+STATIC_WEBSITE_RG=$RG
 STATIC_WEBSITE_HOST=`echo $RES | jq -r ".defaultHostname"`
 
 echo "## Create DNS record"
@@ -110,15 +108,11 @@ az network dns record-set cname create -g $DNS_ZONE_RG -z $DOMAIN -n $SUBDOMAIN 
 az network dns record-set cname set-record -g $DNS_ZONE_RG -z $DOMAIN -n $SUBDOMAIN -c "$STATIC_WEBSITE_HOST" --query "provisioningState" -o "tsv"
 echo "## Add hostname to static webapp"
 az staticwebapp hostname set --hostname $HOST --name $STATIC_WEBSITE
+echo "## Add deployment token to github"
+AZURE_STATIC_WEBSITE_TOKEN=`az rest --method post --url /subscriptions/$SUBSCRIPTION_ID/resourcegroups/$STATIC_WEBSITE_RG/providers/Microsoft.Web/staticSites/$STATIC_WEBSITE/listsecrets?api-version=2020-06-01 | jq -r ".properties.apiKey"`
+gh secret set --repo $GITHUB_REPO_NAME AZURE_STATIC_WEBSITE_TOKEN -b "$AZURE_STATIC_WEBSITE_TOKEN"
 
-# Push
-
-echo "
-####
-Push to repo
-####
-"
-
+echo "## Push to repo"
 git add -A
 git commit -m "Initial commit"
 git push origin main

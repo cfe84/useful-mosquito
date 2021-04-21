@@ -47,11 +47,11 @@ Initialize Typescript
 ####
 "
 cp $RES/tsconfig.json ./tsconfig.json
-npm install --save-dev @types/node typescript ts-loader ts-node
+npm install --save-dev @types/node typescript ts-loader ts-node rimraf
 
 node $JSON_UPDATE $PACKAGE_FILE main "dist/index.js"
 node $JSON_UPDATE $PACKAGE_FILE scripts.build "tsc"
-node $JSON_UPDATE $PACKAGE_FILE scripts.clean "rm -rf dist/"
+node $JSON_UPDATE $PACKAGE_FILE scripts.clean "rimraf dist/"
 node $JSON_UPDATE $PACKAGE_FILE scripts.rebuild "npm run clean && npm run build"
 node $JSON_UPDATE $PACKAGE_FILE scripts.prepublish "npm run rebuild"
 node $JSON_UPDATE $PACKAGE_FILE scripts.start "npm run build && node dist/index.js"

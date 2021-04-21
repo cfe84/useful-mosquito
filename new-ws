@@ -18,6 +18,21 @@ usage() {
     exit 1
 }
 
+if [ -z `which jq` ]; then
+  echo "Error: jq is not installed"
+  usage
+fi
+
+if [ -z "`which az`" ]; then
+  echo "Error: azure cli is not installed"
+  usage
+fi
+
+if [ -z "`which gh`" ]; then
+  echo "Error: github cli is not installed"
+  usage
+fi
+
 while [[ $# -gt 0 ]]
 do
     key="$1"
